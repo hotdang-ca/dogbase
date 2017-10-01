@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>DOGS</title>
+    </head>
+    <style>
+        a {
+            display: inline-block;
+            width: 90%;
+            margin: 8px auto;
+            background-color: #4B349D;
+            height: 44px;
+            padding: 8px 0;
+            color: white;
+            text-align: center;
+            font-size: 28px;
+            font-family: Verdana;
+            text-decoration: none;
+            line-height: 44px;
+            border-radius: 8px;
+        }
+
+        a:hover {
+            background-color: #7D6CBA;
+        }
+
+        h1 {
+            font-size: 36px;
+            font-family: Verdana;
+            text-align: center;
+        }
+    </style>
+    <body>
+        <h1>Dogs</h1>
+        <div id="dog-list" style="display: flex; flex-direction: column; justify-content: flex-start; align-items: center">
+        </div>
+
+        <script>
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var dogs = JSON.parse(xhr.responseText);
+                    console.log(dogs);
+                    dogs.forEach(function (dog) {
+                        var dogButton = document.createElement('a');
+                        dogButton.innerHTML = dog.name;
+                        dogButton.href="/dogs/" + dog.name;
+                        document.getElementById('dog-list').appendChild(dogButton);
+                    });
+                }
+            }
+            xhr.open('GET', '/dogs');
+            console.log('getting dogs');
+            xhr.send();
+        </script>
+    </body>
+</html>

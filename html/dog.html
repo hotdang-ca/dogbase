@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>DOGS</title>
+    </head>
+    <style>
+      ul {
+        list-style-type: none;
+        display: initial;
+      }
+
+      li {
+        list-style: none;
+        width: 90%;
+        height: 44px;
+        font-size: 18px;
+        font-family: Verdana;
+        line-height: 36px;
+        margin: 8px auto;
+        background-color: #C2C2C2;
+        display: block;
+        text-align: center;
+        padding: 8px;
+      }
+
+      li:hover {
+        background-color: #DEDCDC;
+      }
+
+      * {
+        font-family: Verdana;
+      }
+
+      #dogname, #ownername {
+        font-weight: normal;
+        text-transform: uppercase;
+      }
+
+      input {
+        height: 44px;
+        width: 100%;
+      }
+
+      button {
+        height: 44px;
+        background-color: #5701A2;
+        color: white;
+      }
+
+    </style>
+    <body>
+        <h1>Dog: <span id="dogname"></span></h1>
+        <h1>Owner: <span id="ownername"></span></h1>
+
+        <h2>Messages</h2>
+        <ul id="message-list"></ul>
+
+        <h2>Leave a new message:</h2>
+        <div style="margin: 0 auto; align-items: center; justify-content: space-between; width: 100%; display: flex; flex-direction: row; align-items: center">
+            <input type="text" id="new-message" placeholder="New message" />
+            <button id="add-message">Add message</button>
+        </div>
+        <script>
+          // when the button is clicked
+          var pathElements = window.location.pathname.split('/');
+          var dogName = pathElements[pathElements.length - 1];
+
+          document.getElementById('add-message').onclick = () => {
+            var textField = document.getElementById('new-message');
+            if (textField.value.length > 0) {
+              var inputMessage = document.getElementById('new-message').value;
+              var xhrPost = new XMLHttpRequest();
+
+              xhrPost.onreadystatechange = function() {
+                if (xhrPost.readyState === 4 && xhrPost.status === 200) {
+                  var newMessage = JSON.parse(xhrPost.responseText);
+                  var messageElement = document.createElement('li');
+                  messageElement.innerHTML = newMessage.message;
+                  document.getElementById('message-list').appendChild(messageElement);
+                }
+              }
+            }
+
+            xhrPost.open('POST', '/dogs/' + dogName + '/update', true);
+            xhrPost.setRequestHeader("Content-type", "application/json");
+            var body = { message: inputMessage };
+            xhrPost.send(JSON.stringify(body));
+
+            return;
+          };
+
+          function documentLoaded() {
+            // when the page loads
+            var ownerName;
+
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var messages = JSON.parse(xhr.responseText);
+                    document.getElementById('ownername').innerHTML = messages[0].owner;
+
+                    messages.forEach(function (msg) {
+                      console.log(msg);
+                      var messageElement = document.createElement('li');
+                      messageElement.innerHTML = msg.message;
+                      document.getElementById('message-list').appendChild(messageElement);
+                    });
+                }
+            }
+
+            document.getElementById('dogname').innerHTML = dogName;
+
+            xhr.open('GET', '/dogs/' + dogName + "/info");
+            xhr.send();
+          }
+
+          documentLoaded();
+        </script>
+    </body>
+</html>
